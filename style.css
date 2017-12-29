@@ -267,7 +267,7 @@
     float: left;
 }
 
-.item-right .pic-item {
+.item-right .pic-item { 
     flex-grow: 0;
     align-self: center;
 }
@@ -319,6 +319,11 @@
     border-radius: 6px;
 }
 
+/* 
+    zhalice批阅 
+    margin和padding可以进行简写
+    记忆方法--顺时针 marigin:top、right、bottom、left  上右下左
+*/
 .moments-comment .moments-comment-input {
     flex: 8;
     height: 70%;
@@ -329,3 +334,23 @@
     padding: 0;
     padding-left: 10px;
 }
+
+/**
+* zhalice批阅   问题:4种消息的css
+.share-msg{
+    background: #eee;
+    height: 50px;
+    line-height: 50px;
+    margin-top: 10px
+}
+.share-msg img{
+    height: 40px;
+    width: 40px;
+    margin: 0 5px
+}
+.siglepic-msg{
+    margin-top: 10px
+}
+.siglepic-msg img{
+    width: 60%
+} **/

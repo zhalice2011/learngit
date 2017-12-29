@@ -34,7 +34,7 @@ var data = [{
             text: '全面读书日',
             pics: [],
             share: {
-                pic: '',
+                pic: 'http://coding.imweb.io/img/p3/transition-hover.jpg',
                 text: '飘洋过海来看你'
             },
             timeString: '50分钟前',
@@ -72,8 +72,8 @@ var data = [{
             timeString: '2个小时前',
         },
         reply: {
-            hasLiked: false,
-            likes: [],
+            hasLiked: true,
+            likes: ["Lu仔酱"],
             comments: []
         }
     }
@@ -144,6 +144,16 @@ function multiplePicTpl(pics) {
     htmlText.push('</ul>');
     return htmlText.join('');
 }
+function multipleTextPicTpl(pics) {
+    var htmlText = [];
+    htmlText.push('<ul class="item-pic">');
+    for (var i = 0, len = pics.length; i < len; i++) {
+        htmlText.push('<li class="pic-wrap"><img class="pic-item" src="' + pics[i] + '"></li>')
+    }
+    htmlText.push('</ul>');
+    return htmlText.join('');
+}
+
 /**
  * 循环：消息体
  * 生成的html文本可参考 message.html文件
@@ -154,7 +164,7 @@ function messageTpl(messageData) {
     var content = messageData.content;
     var htmlText = [];
     htmlText.push('<div class="moments-item" data-index="0">');
-    // 消息用户头像
+    // 消息用户头像 
     htmlText.push('<a class="item-left" href="#">');
     htmlText.push('<img src="' + user.avatar + '" width="42" height="42" alt=""/>');
     htmlText.push('</a>');
@@ -165,6 +175,34 @@ function messageTpl(messageData) {
     // 消息内容-文本信息
     htmlText.push('<p class="item-msg">' + content.text + '</p>');
     // 消息内容-图片列表 （目前只支持多图片消息，需要补充完成其余三种消息展示）
+    /**
+     * zhalice批阅   问题:对4种消息没有进行分类
+     * 4种消息可以通过switch语句进行判断 在case中对每个不同的type进行分别处理
+     var contentHtml = '';
+    // 目前只支持多图片消息，需要补充完成其余三种消息展示
+        switch(content.type) {
+            // 多图片消息
+            case 0:
+                contentHtml = multiplePicTpl(content.pics);
+                break;
+            case 1:
+            // TODO: 实现分享消息
+                contentHtml = '<div class="share-msg">'+
+                                    '<a href="#"><img src="' + content.share.pic + '">飘扬过来来看你</a>'+
+                            '</div>'
+                break;
+            case 2:
+            // TODO: 实现单张图片消息
+                contentHtml = '<div class="siglepic-msg">'+
+                                    '<img src="' + content.pics + '">'+
+                            '</div>'
+                break;
+            case 3:
+                break;
+            // TODO: 实现无图片消息
+        }
+        htmlText.push(contentHtml);
+    */
     htmlText.push(multiplePicTpl(content.pics));
     // 消息时间和回复按钮
     htmlText.push('<div class="item-ft">');
@@ -246,6 +284,22 @@ function bindEvent() {
     var a = '<i>，</i><a class="reply-who" href="#">' + userName + '</a>';
     $(".item-reply-likelist-like").toggle(function () {
             $(this).text("取消");
+            //
+            /**
+            * zhalice批阅   
+            
+                问题1:没有对自己已经点过赞的进行判断
+                解决:data里面有一个haslike=true表示自己已经是点赞的状态
+                    可以在前期渲染的时候在<div class=="reply-zone" data-like="1"></div>
+                    var haslike = $(this).parents('.item-right').find('.reply-zone').attr("data-like")
+                    if(haslike=="1"){  //表示自己已经点赞
+                        
+                    }else{ //表示自己没有点赞
+
+                    }
+                问题2:下面的($(this).parents('.item-right')可以先缓存起来
+            **/
+            
             //如果有人赞过
             if ($(this).parents('.item-right').find('.reply-like').length == 1) {
                 $(this)
@@ -275,6 +329,15 @@ function bindEvent() {
                 $(this).parents('.item-right').find('.reply-like')
                     .children("a:last-child").remove()
                     .children("i:last-child").remove();
+                    
+                /**
+                * zhalice批阅   
+                
+                    问题1:实现点赞功能中的(点击取消按钮，取消点赞)有问题 使用find查找性能优化
+                    解决:var $replyLike = $(this).parents('.item-right').find('.reply-like')
+                         $replyLike.find("a:last-child").remove()
+                         $replyLike.find("i:last-child").remove()
+                **/
             }
 
             $(this).parent('.item-reply-likelist').animate({
@@ -332,6 +395,16 @@ function bindEvent() {
             $(".moments-comment").hide();
         }
     });
+    /**
+     * zhalice批阅   
+     *      问题1.:Dom元素使用变量进行缓存,不要重复写$("xxx"),既不美观也对性能有影响
+     * 
+     * 优化的办法: var commentBtn =  $('.moments-comment-button')
+     * 
+     *      问题2:对同一个Dom元素的不同操作可以用jq提供的链式方法写在一起
+     * 
+     * 优化的办法: commentBtn.attr("disabled",true)..css("background","#ccc")
+    **/
     // 监听输入框改变
     $('.moments-comment-button').attr("disabled",true);
     $('.moments-comment-button').css(
@@ -356,7 +429,6 @@ function bindEvent() {
         //若不为空，且已有评论
         if (comment.parents(".reply-zone").find(".comment-item").length > 0) {
             comment.append('<div class="comment-item"><a class="reply-who" href="#">' + userName + '</a>：' + $(".moments-comment-input").val() + '</div>')
-
         } else {
             //若不为空，但是没有评论
             curlikelist.parents(".moments-item").find('.reply-zone').append('<div class="reply-comment"><div class="comment-item"><a class="reply-who" href="#">' + userName + '</a>：' + $(".moments-comment-input").val() + '</div></div>')
